@@ -56,3 +56,18 @@ jobs:
           run: |
            docker build -t $REGISTRY/${{ env.IMG_NAME }}:${{ steps.metadata.outputs.version }} .
            docker push $REGISTRY/${{ env.IMG_NAME }}:${{ steps.metadata.outputs.version }}
+
+    deploy:
+      needs: build
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to k8s
+        uses: stefanzweifel/k8s-action@v2.0.0
+        with:
+          args: apply -f kubernetes/deployment.yml -f kubernetes/service.yml
+        env:
+           KUBECONFIG: ${{ env.KUBECONFIG }}
