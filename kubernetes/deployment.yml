@@ -34,7 +34,7 @@ spec:
 
         - name: wisecow-cont
 
-          image: 661239473781.dkr.ecr.us-east-1.amazonaws.com/wisecowrepo:latest
+          image: 661239473781.dkr.ecr.us-east-1.amazonaws.com/wisecowrepo
 
           ports:
 
