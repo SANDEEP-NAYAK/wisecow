@@ -63,12 +63,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to k8s
-        uses: kodermax/kubectl-aws-eks@main
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
-          ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
-          ECR_REPOSITORY: wisecow
-          IMAGE_TAG: latest
+        uses: giovannirossini/aws-eks-kubectl-action@v1
         with:
-         args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          cluster-name: 'wisecow-cluster'
+          command: |
+            kubectl apply -f kubernetes/deployment.yaml -f kubernetes/service.yaml
         
