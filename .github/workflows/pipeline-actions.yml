@@ -33,7 +33,9 @@ jobs:
           with:
               images: ${{ env.IMG_NAME }}
               tags: |
-                type=semver,pattern=v{{major}}
+                type=semver,pattern={{version}}
+                type=semver,pattern={{major}}.{{minor}}
+                type=raw,value={{sha}},enable=${{ github.ref_type != 'tag' }}
         
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
@@ -48,10 +50,9 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           run: |
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
-        
         - name: Build and push Docker image
           env:
             REGISTRY: ${{ env.ECR_REGISTRY }}
           run: |
-           docker build -t ${{ env.ECR_REGISTRY }}/${{ env.IMG_NAME }}:${{ steps.metadata.outputs.version }} .
-           docker push ${{ env.ECR_REGISTRY }}/${{ env.IMG_NAME }}:${{ steps.metadata.outputs.version }}
+           docker build -t $REGISTRY/${{ env.IMG_NAME }}:${{ steps.metadata.outputs.version }} .
+           docker push $REGISTRY/${{ env.IMG_NAME }}:${{ steps.metadata.outputs.version }}
