@@ -64,11 +64,11 @@ jobs:
 
       - name: Deploy to k8s
         uses: kodermax/kubectl-aws-eks@main
-        # env:
-        #   KUBECONFIG: ${{ env.KUBECONFIG }}
-        #   ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
-        #   ECR_REPOSITORY: wisecow
-        #   IMAGE_TAG: latest
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG }}
+          ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
+          ECR_REPOSITORY: wisecow
+          IMAGE_TAG: latest
         with:
-          args: apply -f kubernetes/deployment.yml -f kubernetes/service.yml
+         args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         
