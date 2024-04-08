@@ -94,4 +94,6 @@ jobs:
           run: aws eks update-kubeconfig --name wisecow-cluster
         
         - name: Deploy the manifest files to EKS
-          run:  kubectl apply -f kubernetes/deployment.yml -f kubernetes/service.yml
+          run: |
+            kubectl apply -f kubernetes/deployment.yml 
+            kubectl apply -f kubernetes/service.yml
