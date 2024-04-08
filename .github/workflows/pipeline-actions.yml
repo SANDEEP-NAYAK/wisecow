@@ -93,13 +93,12 @@ jobs:
         - name: Update kube config
           run: |
             aws eks update-kubeconfig --name wisecow-cluster
-            echo ${{ secrets.KUBECONFIG }} | python -c 'import sys, base64; print(base64.b64decode(sys.stdin.read()).decode())' > kubeconfig.yaml
 
         
         - name: Deploy the manifest files to EKS
           run: |
             export ECR_REPOSITORY="${{ env.ECR_REGISTRY }}/wisecow"
             export IMAGE_TAG=latest
-            export KUBECONFIG=kubeconfig.yaml
+            export KUBECONFIG=~/.kube/config
             envsubst < kubernetes/kustomization.tmpl.yaml > kubernetes/kustomization.yaml
             kubectl kustomize kubernetes | kubectl apply -f -
