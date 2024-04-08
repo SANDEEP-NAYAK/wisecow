@@ -98,5 +98,9 @@ jobs:
             export IMAGE_TAG=latest
             export KUBECONFIG=$HOME/.kube/config
             envsubst < kubernetes/kustomization.tmpl.yaml > kubernetes/kustomization.yaml
+            export KUBERNETES_MASTER=http://127.0.0.1:8080
             kubectl proxy --port=8080
             kubectl kustomize kubernetes | sudo kubectl apply -f -
+
+
+# https://github.com/kubernetes/kompose/issues/1201
