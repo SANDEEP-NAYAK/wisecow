@@ -96,6 +96,7 @@ jobs:
             aws eks update-kubeconfig --name wisecow-cluster --region ${{env.AWS_REGION}}
             export ECR_REPOSITORY="${{ env.ECR_REGISTRY }}/wisecow"
             export IMAGE_TAG=latest
-            export KUBECONFIG=/etc/kubernetes/admin.conf
+            export KUBECONFIG=$HOME/.kube/config
             envsubst < kubernetes/kustomization.tmpl.yaml > kubernetes/kustomization.yaml
+            kubectl proxy --port=8080
             kubectl kustomize kubernetes | sudo kubectl apply -f -
