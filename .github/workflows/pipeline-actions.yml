@@ -25,14 +25,14 @@ jobs:
 
         - name: Debug
           run: |
-            echo "github.ref -> {{ github.ref }}"
+            echo "github.ref -> ${{ github.ref }}"
         
         - name: Docker metadata
           id: metadata
           uses: docker/metadata-action@v3
           with:
-              images: ${{ env.IMG_NAME }}
-              tags: latest
+             images: ${{ env.IMG_NAME }}
+             tags: latest
         
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
@@ -51,24 +51,40 @@ jobs:
           env:
             REGISTRY: ${{ env.ECR_REGISTRY }}
           run: |
-           docker build -t $REGISTRY/${{ env.IMG_NAME }}:latest .
-           docker push $REGISTRY/${{ env.IMG_NAME }}:latest
+           docker build -t ${{env.REGISTRY}}/${{ env.IMG_NAME }}:latest .
+           docker push ${{env.REGISTRY}}/${{ env.IMG_NAME }}:latest
 
     deploy:
       needs: build
       runs-on: ubuntu-latest
 
       steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to k8s
-        uses: giovannirossini/aws-eks-kubectl-action@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-          cluster-name: 'wisecow-cluster'
-          command: |
-            kubectl apply -f kubernetes/deployment.yaml -f kubernetes/service.yaml
+        - name: Checkout
+          uses: actions/checkout@v4
         
+        - name: Install kubectl
+          uses: azure/setup-kubectl@v2.0
+          with:
+            version: 'v1.29.0'
+          id: install
+    
+        - name: Login to Amazon ECR
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          run: |
+           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+    
+        # - name: Install and configure kubectl
+        #   run: |
+        #    curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
+        #    chmod +x ./kubectl
+        #    mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+        #    echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+
+
+        - name: Update kube config
+          run: aws eks update-kubeconfig --name wisecow-cluster
+        
+        - name: Deploy the manifest files to EKS
+          run:  kubectl apply -f kubernetes/deployment.yml -f kubernetes/service.yml
