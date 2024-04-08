@@ -98,4 +98,4 @@ jobs:
             export IMAGE_TAG=latest
             export KUBECONFIG=/etc/kubernetes/admin.conf
             envsubst < kubernetes/kustomization.tmpl.yaml > kubernetes/kustomization.yaml
-            sudo kubectl kustomize kubernetes | kubectl apply -f -
+            kubectl kustomize kubernetes | sudo kubectl apply -f -
