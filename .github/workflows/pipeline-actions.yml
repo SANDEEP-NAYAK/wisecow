@@ -93,6 +93,7 @@ jobs:
         - name: Update kube config
           run: |
             aws eks update-kubeconfig --name wisecow-cluster
+            echo ${{ secrets.KUBECONFIG }} | /usr/bin/base64 --decode > kubeconfig.yaml
 
         
         - name: Deploy the manifest files to EKS
