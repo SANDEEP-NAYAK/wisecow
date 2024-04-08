@@ -88,15 +88,12 @@ jobs:
         #    chmod +x ./kubectl
         #    mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
         #    echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
-
-
-        - name: Update kube config
-          run: |
-            aws eks update-kubeconfig --name wisecow-cluster
+            
 
         
         - name: Deploy the manifest files to EKS
           run: |
+            aws eks update-kubeconfig --name wisecow-cluster --region ${{env.AWS_REGION}}
             export ECR_REPOSITORY="${{ env.ECR_REGISTRY }}/wisecow"
             export IMAGE_TAG=latest
             export KUBECONFIG=~/.kube/config
